@@ -26,7 +26,8 @@ if (!defined('CIVICRM_WPCLI_LOADED')) {
    *
    * @since 4.5
    */
-  class CiviCRM_Command extends WP_CLI_Command {
+  class CiviCRM_Command extends WP_CLI_Command
+  {
 
     private $args;
     private $assoc_args;
@@ -117,7 +118,8 @@ if (!defined('CIVICRM_WPCLI_LOADED')) {
      * --zipfile           Path to your CiviCRM zip file.
      *
      */
-    public function __invoke($args, $assoc_args) {
+    public function __invoke($args, $assoc_args)
+    {
 
       $this->args       = $args;
       $this->assoc_args = $assoc_args;
@@ -163,7 +165,6 @@ if (!defined('CIVICRM_WPCLI_LOADED')) {
 
       // Run command.
       return $this->{$command_router[$command]}();
-
     }
 
     /**
@@ -171,7 +172,8 @@ if (!defined('CIVICRM_WPCLI_LOADED')) {
      *
      * @since 4.5
      */
-    private function api() {
+    private function api()
+    {
 
       $defaults = ['version' => 3];
 
@@ -183,7 +185,7 @@ if (!defined('CIVICRM_WPCLI_LOADED')) {
       $format = $this->getOption('in', 'args');
       switch ($format) {
 
-        //  Input params supplied via args.
+          //  Input params supplied via args.
         case 'args':
           $params = $defaults;
           foreach ($this->args as $arg) {
@@ -192,7 +194,7 @@ if (!defined('CIVICRM_WPCLI_LOADED')) {
           }
           break;
 
-        //  Input params supplied via json.
+          //  Input params supplied via json.
         case 'json':
           $json   = stream_get_contents(STDIN);
           $params = (empty($json) ? $defaults : array_merge($defaults, json_decode($json, TRUE)));
@@ -201,7 +203,6 @@ if (!defined('CIVICRM_WPCLI_LOADED')) {
         default:
           WP_CLI::error(sprintf('Unknown format: %s', $format));
           break;
-
       }
 
       civicrm_initialize();
@@ -223,21 +224,19 @@ if (!defined('CIVICRM_WPCLI_LOADED')) {
 
       switch ($this->getOption('out', 'pretty')) {
 
-        // Pretty-print output (default).
+          // Pretty-print output (default).
         case 'pretty':
           WP_CLI::line(print_r($result, TRUE));
           break;
 
-        // Display output as json.
+          // Display output as json.
         case 'json':
           WP_CLI::line(json_encode($result));
           break;
 
         default:
           return WP_CLI::error(sprintf('Unknown format: %s', $format));
-
       }
-
     }
 
     /**
@@ -245,7 +244,8 @@ if (!defined('CIVICRM_WPCLI_LOADED')) {
      *
      * @since 4.5
      */
-    private function cacheClear() {
+    private function cacheClear()
+    {
 
       civicrm_initialize();
       require_once 'CRM/Core/Config.php';
@@ -260,7 +260,6 @@ if (!defined('CIVICRM_WPCLI_LOADED')) {
       // Also cleanup the session object.
       $session = CRM_Core_Session::singleton();
       $session->reset(1);
-
     }
 
     /**
@@ -268,7 +267,8 @@ if (!defined('CIVICRM_WPCLI_LOADED')) {
      *
      * @since 4.5
      */
-    private function enableDebug() {
+    private function enableDebug()
+    {
       civicrm_initialize();
       Civi::settings()->add([
         'debug_enabled' => 1,
@@ -282,7 +282,8 @@ if (!defined('CIVICRM_WPCLI_LOADED')) {
      *
      * @since 4.7
      */
-    private function disableDebug() {
+    private function disableDebug()
+    {
       civicrm_initialize();
       Civi::settings()->add([
         'debug_enabled' => 0,
@@ -296,7 +297,8 @@ if (!defined('CIVICRM_WPCLI_LOADED')) {
      *
      * @since 4.5
      */
-    private function install() {
+    private function install()
+    {
       if ('on' === $this->getOption('ssl', FALSE)) {
         $_SERVER['HTTPS'] = 'on';
       }
@@ -305,8 +307,7 @@ if (!defined('CIVICRM_WPCLI_LOADED')) {
 
       if ($plugin_path = $this->getOption('destination', FALSE)) {
         $plugin_path = ABSPATH . $plugin_path;
-      }
-      else {
+      } else {
         $plugin_path = WP_PLUGIN_DIR . '/civicrm';
       }
 
@@ -351,8 +352,7 @@ if (!defined('CIVICRM_WPCLI_LOADED')) {
         if (!$this->untar(dirname($plugin_path))) {
           return WP_CLI::error('Error extracting tarfile');
         }
-      }
-      elseif ($this->getOption('zipfile', FALSE)) {
+      } elseif ($this->getOption('zipfile', FALSE)) {
         if ($crm_files_present) {
           return WP_CLI::error('Existing CiviCRM found. No action taken.');
         }
@@ -360,12 +360,10 @@ if (!defined('CIVICRM_WPCLI_LOADED')) {
         if (!$this->unzip(dirname($plugin_path))) {
           return WP_CLI::error('Error extracting zipfile.');
         }
-      }
-      elseif ($crm_files_present) {
+      } elseif ($crm_files_present) {
         // Site is already extracted - which is how we're running this script.
         // We just need to run the installer.
-      }
-      else {
+      } else {
         return WP_CLI::error('No zipfile specified, use "--zipfile=path/to/zipfile" or extract file ahead of time.');
       }
 
@@ -379,8 +377,7 @@ if (!defined('CIVICRM_WPCLI_LOADED')) {
       if ($crm_files_present) {
         // We were using a directory that was already there.
         WP_CLI::success('Using installer files found on the site.');
-      }
-      else {
+      } else {
         // We must've just unpacked the archive because it wasn't there
         // before.
         WP_CLI::success('Archive unpacked.');
@@ -435,7 +432,8 @@ if (!defined('CIVICRM_WPCLI_LOADED')) {
       WP_CLI::success('CiviCRM installed.');
     }
 
-    private function formatRequirements(array $messages): array {
+    private function formatRequirements(array $messages): array
+    {
       $formatted = [];
       foreach ($messages as $message) {
         $formatted[] = sprintf("[%s] %s: %s", $message['severity'], $message['section'], $message['message']);
@@ -448,7 +446,8 @@ if (!defined('CIVICRM_WPCLI_LOADED')) {
      *
      * @since 4.5
      */
-    private function memberRecords() {
+    private function memberRecords()
+    {
 
       civicrm_initialize();
 
@@ -457,9 +456,7 @@ if (!defined('CIVICRM_WPCLI_LOADED')) {
         $job = new CRM_Core_JobManager();
         $job->executeJobByAction('job', 'process_membership');
         WP_CLI::success('Executed "process_membership" job.');
-
-      }
-      else {
+      } else {
 
         $_REQUEST['name'] = $this->getOption('civicrm_cron_username', NULL);
         $_REQUEST['pass'] = $this->getOption('civicrm_cron_password', NULL);
@@ -479,9 +476,7 @@ if (!defined('CIVICRM_WPCLI_LOADED')) {
         # }
 
         include 'bin/UpdateMembershipRecord.php';
-
       }
-
     }
 
     /**
@@ -489,7 +484,8 @@ if (!defined('CIVICRM_WPCLI_LOADED')) {
      *
      * @since 4.5
      */
-    private function processMailQueue() {
+    private function processMailQueue()
+    {
 
       civicrm_initialize();
 
@@ -498,16 +494,13 @@ if (!defined('CIVICRM_WPCLI_LOADED')) {
         $job = new CRM_Core_JobManager();
         $job->executeJobByAction('job', 'process_mailing');
         WP_CLI::success("Executed 'process_mailing' job.");
-
-      }
-      else {
+      } else {
 
         $result = civicrm_api('Mailing', 'Process', ['version' => 3]);
         if ($result['is_error']) {
           WP_CLI::error($result['error_message']);
         }
       }
-
     }
 
     /**
@@ -515,7 +508,8 @@ if (!defined('CIVICRM_WPCLI_LOADED')) {
      *
      * @since 4.5
      */
-    private function rest() {
+    private function rest()
+    {
 
       civicrm_initialize();
 
@@ -544,13 +538,11 @@ if (!defined('CIVICRM_WPCLI_LOADED')) {
 
       if (isset($_GET['json']) && $_GET['json']) {
         header('Content-Type: text/javascript');
-      }
-      else {
+      } else {
         header('Content-Type: text/xml');
       }
 
       echo $rest->run($config);
-
     }
 
     /**
@@ -558,7 +550,8 @@ if (!defined('CIVICRM_WPCLI_LOADED')) {
      *
      * @since 4.5
      */
-    private function restore() {
+    private function restore()
+    {
 
       // Validate.
       $restore_dir = $this->getOption('restore-dir', FALSE);
@@ -575,8 +568,7 @@ if (!defined('CIVICRM_WPCLI_LOADED')) {
       $code_dir = $restore_dir . '/civicrm';
       if (!is_dir($code_dir)) {
         return WP_CLI::error('Could not locate the CiviCRM directory inside "restore-dir".');
-      }
-      elseif (!file_exists("$code_dir/civicrm/civicrm-version.txt") && !file_exists("$code_dir/civicrm/civicrm-version.php")) {
+      } elseif (!file_exists("$code_dir/civicrm/civicrm-version.txt") && !file_exists("$code_dir/civicrm/civicrm-version.php")) {
         return WP_CLI::error('The CiviCRM directory inside "restore-dir" does not seem to be a valid CiviCRM codebase.');
       }
 
@@ -686,7 +678,6 @@ if (!defined('CIVICRM_WPCLI_LOADED')) {
       WP_CLI::run_command(['civicrm', 'cache-clear']);
 
       WP_CLI::success('Restore process completed.');
-
     }
 
     /**
@@ -694,7 +685,8 @@ if (!defined('CIVICRM_WPCLI_LOADED')) {
      *
      * @since 4.5
      */
-    private function sqlConf() {
+    private function sqlConf()
+    {
 
       civicrm_initialize();
       if (!defined('CIVICRM_DSN')) {
@@ -702,7 +694,6 @@ if (!defined('CIVICRM_WPCLI_LOADED')) {
       }
 
       WP_CLI::line(print_r(DB::parseDSN(CIVICRM_DSN), TRUE));
-
     }
 
     /**
@@ -710,7 +701,8 @@ if (!defined('CIVICRM_WPCLI_LOADED')) {
      *
      * @since 4.5
      */
-    private function sqlConnect() {
+    private function sqlConnect()
+    {
 
       civicrm_initialize();
       if (!defined('CIVICRM_DSN')) {
@@ -732,7 +724,6 @@ if (!defined('CIVICRM_WPCLI_LOADED')) {
       }
 
       return WP_CLI::line($command);
-
     }
 
     /**
@@ -740,7 +731,8 @@ if (!defined('CIVICRM_WPCLI_LOADED')) {
      *
      * @since 4.5
      */
-    private function sqlDump() {
+    private function sqlDump()
+    {
 
       // Bootstrap CiviCRM when we're not being called as part of an upgrade.
       if (!defined('CIVICRM_UPGRADE_ACTIVE')) {
@@ -781,7 +773,6 @@ if (!defined('CIVICRM_WPCLI_LOADED')) {
       if (!$stdout) {
         WP_CLI::success(sprintf('Exported to %s', $assoc_args['result-file']));
       }
-
     }
 
     /**
@@ -789,7 +780,8 @@ if (!defined('CIVICRM_WPCLI_LOADED')) {
      *
      * @since 4.5
      */
-    private function sqlQuery() {
+    private function sqlQuery()
+    {
 
       if (!isset($this->args[0])) {
         WP_CLI::error('No query specified.');
@@ -814,7 +806,6 @@ if (!defined('CIVICRM_WPCLI_LOADED')) {
       ];
 
       \WP_CLI\Utils\run_mysql_command('mysql --no-defaults', $mysql_args);
-
     }
 
     /**
@@ -822,7 +813,8 @@ if (!defined('CIVICRM_WPCLI_LOADED')) {
      *
      * @since 4.5
      */
-    private function sqlCLI() {
+    private function sqlCLI()
+    {
 
       civicrm_initialize();
       if (!defined('CIVICRM_DSN')) {
@@ -839,7 +831,6 @@ if (!defined('CIVICRM_WPCLI_LOADED')) {
       ];
 
       \WP_CLI\Utils\run_mysql_command('mysql --no-defaults', $mysql_args);
-
     }
 
     /**
@@ -847,7 +838,8 @@ if (!defined('CIVICRM_WPCLI_LOADED')) {
      *
      * @since 4.5
      */
-    private function updateConfig() {
+    private function updateConfig()
+    {
 
       civicrm_initialize();
 
@@ -882,12 +874,9 @@ if (!defined('CIVICRM_WPCLI_LOADED')) {
         }
 
         WP_CLI::success('Config successfully updated.');
-
-      }
-      else {
+      } else {
         WP_CLI::error('Config update failed.');
       }
-
     }
 
     /**
@@ -895,7 +884,8 @@ if (!defined('CIVICRM_WPCLI_LOADED')) {
      *
      * @since 4.5
      */
-    private function upgrade() {
+    private function upgrade()
+    {
 
       // TODO: Use wp-cli to download tarfile.
       // TODO: If tarfile is not specified, see if the code already exists and use that instead.
@@ -940,13 +930,11 @@ if (!defined('CIVICRM_WPCLI_LOADED')) {
         // phpcs:disable
         eval($civicrm_root_code);
         // phpcs:enable
-      }
-      elseif ($civicrm_root_code = reset(preg_grep('/^\s*\$civicrm_root\s*=.*$/', $settings))) {
+      } elseif ($civicrm_root_code = reset(preg_grep('/^\s*\$civicrm_root\s*=.*$/', $settings))) {
         // phpcs:disable
         eval($civicrm_root_code);
         // phpcs:enable
-      }
-      else {
+      } else {
         return WP_CLI::error('Unable to read $civicrm_root from civicrm.settings.php');
       }
 
@@ -955,8 +943,7 @@ if (!defined('CIVICRM_WPCLI_LOADED')) {
         // phpcs:disable
         eval($civicrm_dsn_code);
         // phpcs:enable
-      }
-      else {
+      } else {
         return WP_CLI::error('Unable to read CIVICRM_DSN from civicrm.settings.php');
       }
 
@@ -1019,13 +1006,11 @@ if (!defined('CIVICRM_WPCLI_LOADED')) {
         if (!$this->untar($plugin_path)) {
           return WP_CLI::error('Error extracting tarfile');
         }
-      }
-      elseif ($this->getOption('zipfile', FALSE)) {
+      } elseif ($this->getOption('zipfile', FALSE)) {
         if (!$this->unzip($plugin_path)) {
           return WP_CLI::error('Error extracting zipfile');
         }
-      }
-      else {
+      } else {
         return WP_CLI::error('No zipfile specified, use --zipfile=path/to/zipfile');
       }
 
@@ -1043,7 +1028,6 @@ if (!defined('CIVICRM_WPCLI_LOADED')) {
       WP_CLI::run_command(['civicrm', 'upgrade-db'], []);
 
       WP_CLI::success('Process completed.');
-
     }
 
     /**
@@ -1051,7 +1035,8 @@ if (!defined('CIVICRM_WPCLI_LOADED')) {
      *
      * @since 4.5
      */
-    private function upgradeDB() {
+    private function upgradeDB()
+    {
 
       civicrm_initialize();
 
@@ -1066,13 +1051,10 @@ if (!defined('CIVICRM_WPCLI_LOADED')) {
           $upgrade_headless = new CRM_Upgrade_Headless();
           $result = $upgrade_headless->run();
           WP_CLI::line(sprintf('Upgrade outputs: "%s"', $result['message']));
-        }
-        catch (Exception $e) {
+        } catch (Exception $e) {
           WP_CLI::error($e->getMessage());
         }
-
-      }
-      else {
+      } else {
 
         require_once 'CRM/Core/Smarty.php';
         $template = CRM_Core_Smarty::singleton();
@@ -1092,9 +1074,7 @@ if (!defined('CIVICRM_WPCLI_LOADED')) {
         $result = $template->get_template_vars('message');
         ob_end_clean();
         WP_CLI::line('Upgrade outputs: ' . "\"$result\"");
-
       }
-
     }
 
     /**
@@ -1106,7 +1086,8 @@ if (!defined('CIVICRM_WPCLI_LOADED')) {
      * @param string|array $dsn
      * @return array $parsed The arry containing db connection details.
      */
-    private static function parseDSN($dsn) {
+    private static function parseDSN($dsn)
+    {
 
       $parsed = [
         'phptype'  => FALSE,
@@ -1132,8 +1113,7 @@ if (!defined('CIVICRM_WPCLI_LOADED')) {
       if (($pos = strpos($dsn, '://')) !== FALSE) {
         $str = substr($dsn, 0, $pos);
         $dsn = substr($dsn, $pos + 3);
-      }
-      else {
+      } else {
         $str = $dsn;
         $dsn = NULL;
       }
@@ -1143,8 +1123,7 @@ if (!defined('CIVICRM_WPCLI_LOADED')) {
       if (preg_match('|^(.+?)\((.*?)\)$|', $str, $arr)) {
         $parsed['phptype']  = $arr[1];
         $parsed['dbsyntax'] = !$arr[2] ? $arr[1] : $arr[2];
-      }
-      else {
+      } else {
         $parsed['phptype']  = $str;
         $parsed['dbsyntax'] = $str;
       }
@@ -1161,8 +1140,7 @@ if (!defined('CIVICRM_WPCLI_LOADED')) {
         if (($pos = strpos($str, ':')) !== FALSE) {
           $parsed['username'] = rawurldecode(substr($str, 0, $pos));
           $parsed['password'] = rawurldecode(substr($str, $pos + 1));
-        }
-        else {
+        } else {
           $parsed['username'] = rawurldecode($str);
         }
       }
@@ -1174,17 +1152,14 @@ if (!defined('CIVICRM_WPCLI_LOADED')) {
         $proto       = $match[1];
         $proto_opts  = $match[2] ? $match[2] : FALSE;
         $dsn         = $match[3];
-
-      }
-      else {
+      } else {
         // $dsn => protocol+hostspec/database (old format)
         if (strpos($dsn, '+') !== FALSE) {
           list($proto, $dsn) = explode('+', $dsn, 2);
         }
         if (strpos($dsn, '/') !== FALSE) {
           list($proto_opts, $dsn) = explode('/', $dsn, 2);
-        }
-        else {
+        } else {
           $proto_opts = $dsn;
           $dsn = NULL;
         }
@@ -1198,8 +1173,7 @@ if (!defined('CIVICRM_WPCLI_LOADED')) {
       }
       if ('tcp' == $parsed['protocol']) {
         $parsed['hostspec'] = $proto_opts;
-      }
-      elseif ('unix' == $parsed['protocol']) {
+      } elseif ('unix' == $parsed['protocol']) {
         $parsed['socket'] = $proto_opts;
       }
 
@@ -1209,15 +1183,13 @@ if (!defined('CIVICRM_WPCLI_LOADED')) {
         if (($pos = strpos($dsn, '?')) === FALSE) {
           // /database
           $parsed['database'] = rawurldecode($dsn);
-        }
-        else {
+        } else {
           // /database?param1=value1&param2=value2
           $parsed['database'] = rawurldecode(substr($dsn, 0, $pos));
           $dsn = substr($dsn, $pos + 1);
           if (strpos($dsn, '&') !== FALSE) {
             $opts = explode('&', $dsn);
-          }
-          else {
+          } else {
             // database?param1=value1
             $opts = [$dsn];
           }
@@ -1232,7 +1204,6 @@ if (!defined('CIVICRM_WPCLI_LOADED')) {
       }
 
       return $parsed;
-
     }
 
     /**
@@ -1244,7 +1215,8 @@ if (!defined('CIVICRM_WPCLI_LOADED')) {
      * @param string $default
      * @return mixed The value if found or default if not.
      */
-    private function getOption($name, $default) {
+    private function getOption($name, $default)
+    {
       return isset($this->assoc_args[$name]) ? $this->assoc_args[$name] : $default;
     }
 
@@ -1258,7 +1230,8 @@ if (!defined('CIVICRM_WPCLI_LOADED')) {
      *
      * @return string The user which owns templates_c. Empty string if not found.
      */
-    private function getWebServerUser() {
+    private function getWebServerUser()
+    {
 
       $plugins_dir = plugin_dir_path(__FILE__);
       $plugins_dir_root = WP_PLUGIN_DIR;
@@ -1270,15 +1243,13 @@ if (!defined('CIVICRM_WPCLI_LOADED')) {
         if (isset($owner['name'])) {
           return $owner['name'];
         }
-      }
-      elseif (is_dir($tpl_path)) {
+      } elseif (is_dir($tpl_path)) {
         $owner = posix_getpwuid(fileowner($tpl_path));
         if (isset($owner['name'])) {
           return $owner['name'];
         }
       }
       return '';
-
     }
 
     /**
@@ -1288,7 +1259,8 @@ if (!defined('CIVICRM_WPCLI_LOADED')) {
      *
      * @return string The group the webserver runs as. Empty string if not found.
      */
-    private function getWebServerGroup() {
+    private function getWebServerGroup()
+    {
 
       $plugins_dir = plugin_dir_path(__FILE__);
       $plugins_dir_root = WP_PLUGIN_DIR;
@@ -1301,8 +1273,7 @@ if (!defined('CIVICRM_WPCLI_LOADED')) {
         if (isset($group['name'])) {
           return $group['name'];
         }
-      }
-      elseif (is_dir($tpl_path)) {
+      } elseif (is_dir($tpl_path)) {
         $group = posix_getgrgid(filegroup($tpl_path));
         if (isset($group['name'])) {
           return $group['name'];
@@ -1310,7 +1281,6 @@ if (!defined('CIVICRM_WPCLI_LOADED')) {
       }
 
       return '';
-
     }
 
     /**
@@ -1322,7 +1292,8 @@ if (!defined('CIVICRM_WPCLI_LOADED')) {
      * @param string $option The command line option to get input filename from, defaults to 'tarfile'.
      * @return bool True if successful, false otherwise.
      */
-    private function untar($destination_path, $option = 'tarfile') {
+    private function untar($destination_path, $option = 'tarfile')
+    {
 
       if ($tarfile = $this->getOption($option, FALSE)) {
         WP_CLI::line('Extracting tar.gz archive...');
@@ -1330,11 +1301,9 @@ if (!defined('CIVICRM_WPCLI_LOADED')) {
         $tarfile = substr($tarfile, 0, strlen($tarfile) - 3);
         WP_CLI::launch("tar -xf $tarfile -C \"$destination_path\"");
         return TRUE;
-      }
-      else {
+      } else {
         return FALSE;
       }
-
     }
 
     /**
@@ -1346,26 +1315,24 @@ if (!defined('CIVICRM_WPCLI_LOADED')) {
      * @param string $option The command line option to get zip filename from, defaults to 'zipfile'.
      * @return bool True if successful, false otherwise.
      */
-    private function unzip($destination_path, $option = 'zipfile') {
+    private function unzip($destination_path, $option = 'zipfile')
+    {
 
       if ($zipfile = $this->getOption($option, FALSE)) {
         WP_CLI::line('Extracting zip archive...');
         WP_CLI::launch("unzip -q $zipfile -d $destination_path");
         return TRUE;
-      }
-      else {
+      } else {
         return FALSE;
       }
-
     }
-
   }
 
   WP_CLI::add_command('civicrm', 'CiviCRM_Command');
   WP_CLI::add_command('cv', 'CiviCRM_Command');
 
   // Set path early.
-  WP_CLI::add_hook('before_wp_load', function() {
+  WP_CLI::add_hook('before_wp_load', function () {
 
     global $civicrm_paths;
     $wp_cli_config = WP_CLI::get_config();
@@ -1379,7 +1346,5 @@ if (!defined('CIVICRM_WPCLI_LOADED')) {
     if (!empty($wp_cli_config['url'])) {
       $civicrm_paths['cms.root']['url'] = $wp_cli_config['url'];
     }
-
   });
-
 }
